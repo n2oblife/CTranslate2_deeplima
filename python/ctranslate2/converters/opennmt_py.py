@@ -2,12 +2,13 @@ import argparse
 
 from ctranslate2.converters import utils
 from ctranslate2.converters.converter import Converter
-from ctranslate2.specs import common_spec, transformer_spec
+from ctranslate2.specs import common_spec, transformer_spec, trankit_spec
 
 _SUPPORTED_ACTIVATIONS = {
     "gelu": common_spec.Activation.GELU,
     "fast_gelu": common_spec.Activation.GELUTanh,
     "relu": common_spec.Activation.RELU,
+    "silu": common_spec.Activation.SWISH
 }
 
 _SUPPORTED_FEATURES_MERGE = {
@@ -18,6 +19,8 @@ _SUPPORTED_FEATURES_MERGE = {
 
 def check_opt(opt, num_source_embeddings):
     with_relative_position = getattr(opt, "max_relative_positions", 0) > 0
+    with_rotary = getattr(opt, "max_relative_positions", 0) == -1
+    with_alibi = getattr(opt, "max_relative_positions", 0) == -2
     activation_fn = getattr(opt, "pos_ffn_activation_fn", "relu")
     feat_merge = getattr(opt, "feat_merge", "concat")
     self_attn_type = getattr(opt, "self_attn_type", "scaled-dot")
@@ -155,7 +158,10 @@ class OpenNMTPyConverter(Converter):
 
         src_vocabs, tgt_vocabs = get_vocabs(checkpoint["vocab"])
 
-        check_opt(checkpoint["opt"], num_source_embeddings=len(src_vocabs))
+        if checkpoint['opt'].trankit :
+            trankit_spec.check_opt_trankit(checkpoint["opt"], num_source_embeddings=len(src_vocabs))
+        else :
+            check_opt(checkpoint["opt"], num_source_embeddings=len(src_vocabs))
 
         variables = checkpoint["model"]
         variables.update(
@@ -165,6 +171,7 @@ class OpenNMTPyConverter(Converter):
             }
         )
 
+	
         if checkpoint["opt"].decoder_type == "transformer_lm":
             return _get_model_spec_lm(
                 checkpoint["opt"],
@@ -173,6 +180,15 @@ class OpenNMTPyConverter(Converter):
                 tgt_vocabs,
                 num_source_embeddings=len(src_vocabs),
             )
+        elif checkpoint["opt"].trankit:
+            return trankit_spec.get_model_spec_trankit(
+                checkpoint["opt"],
+                variables,
+                src_vocabs,
+                tgt_vocabs,
+                num_source_embeddings=len(src_vocabs),
+                config=checkpoint["config"], # config from trankit to build the model
+                )
         else:
             return _get_model_spec_seq2seq(
                 checkpoint["opt"],

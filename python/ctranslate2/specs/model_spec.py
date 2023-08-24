@@ -151,12 +151,16 @@ class LayerSpec(FrozenAttr, metaclass=FrozenMeta):
                     break
                 # Because variables can be transformed on load (e.g. transposed),
                 # we use an element-wise equality check.
-                if not np.isscalar(value) and _is_same_weight(value, other_value):
-                    # Replace variable value by the alias name.
-                    scope, attr_name = _parent_scope(name)
-                    spec = index_spec(self, scope)
-                    setattr(spec, attr_name, other_name)
-                    break
+                try :
+                    if isinstance(value, np.ndarray) and isinstance(other_value, np.ndarray):
+                        if not np.isscalar(value) and _is_same_weight(value, other_value):
+                            # Replace variable value by the alias name.
+                            scope, attr_name = _parent_scope(name)
+                            spec = index_spec(self, scope)
+                            setattr(spec, attr_name, other_name)
+                            break
+                except AttributeError:
+                    breakpoint()    
 
     def _quantize(self, quantization):
         """Possibly quantizes the variable of the layer."""
@@ -322,6 +326,10 @@ class ModelSpec(LayerSpec):
           output_dir: Output directory where the model is saved.
         """
         self._serialize(os.path.join(output_dir, "model.bin"))
+        # try : 
+        #     if self._opt.trankit:
+        #         self._opt.save_as_json(os.path.join(output_dir, "config.json"))
+        # except :
         if self._config is not None:
             self._config.save_as_json(os.path.join(output_dir, "config.json"))
 
@@ -356,12 +364,13 @@ class ModelSpec(LayerSpec):
             model.write(struct.pack("I", len(variables)))
             for name, value in variables:
                 _write_string(name)
-                model.write(struct.pack("B", len(value.shape)))
-                for dim in value.shape:
-                    model.write(struct.pack("I", dim))
-                model.write(struct.pack("B", _dtype_to_type_id(value.dtype)))
-                model.write(struct.pack("I", value.nbytes))
-                model.write(value.tobytes())
+                if isinstance(value, np.ndarray):
+                    model.write(struct.pack("B", len(value.shape)))
+                    for dim in value.shape:
+                        model.write(struct.pack("I", dim))
+                    model.write(struct.pack("B", _dtype_to_type_id(value.dtype)))
+                    model.write(struct.pack("I", value.nbytes))
+                    model.write(value.tobytes())
             model.write(struct.pack("I", len(aliases)))
             for alias, variable_name in aliases:
                 _write_string(alias)
