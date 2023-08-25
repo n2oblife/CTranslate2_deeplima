@@ -1,12 +1,14 @@
 *.pyc
 /.vs
 /build
+.vscode/
 
 CMake*.json
 .idea
 python/build/
 python/ctranslate2.egg-info/
 python/dist/
+python/ct2_env/
 .cache
 docs/build/
 docs/python/

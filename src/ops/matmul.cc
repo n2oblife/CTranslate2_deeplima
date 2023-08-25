@@ -96,5 +96,31 @@ namespace ctranslate2 {
       }
     }
 
+    /**
+     * Compute the batch matrix-matrix multiplication between the batches
+     * If input is a (b×n×m), b is (b×m×p), out will be (b×n×p).
+    */
+    void bmm(const StorageView& a, const StorageView& b, StorageView& out) {
+      Shape a_shape(a.shape()), b_shape(b.shape());
+      if (a_shape.size() != 3 || b_shape.size() != 3){
+        throw std::invalid_argument("MatMul: the matrix to be computed must be have 3 dim");
+      }
+      if (a_shape[0] != b_shape[0]){
+        throw std::invalid_argument("MatMul: the matrix to be computed must be have have the same number of batch b");
+      }
+      if (a_shape[2] != b_shape[1]){
+        throw std::invalid_argument("MatMul: the shape of the matrix to be computed is good. (b*n*m) * (b*m*p) -> (b*n*p). ");
+      }
+      Shape out_shape({a_shape[0], a_shape[1], b_shape[2]});
+      out.resize(std::move(out_shape));
+      StorageView res(a.dtype(), a.device());
+      ops::MatMul mm();
+      for (int i=0; i<a_shape[0]; i++){
+        mm(, , res); // TODO compute the matmul
+        out;
+        res.clear();
+      }
+    }
+
   }
 }
