@@ -17,6 +17,7 @@ namespace ctranslate2 {
 
       template <Device D, typename T>
       void bmm(const StorageView& a, const StorageView& b, StorageView& out) const;
+      template <Device D, typename T>
       void compute(const StorageView& a, const StorageView& b, StorageView& c) const;
     };
 

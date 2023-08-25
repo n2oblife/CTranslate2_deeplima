@@ -10,7 +10,7 @@ namespace ctranslate2 {
             void operator()(const StorageView& mat, dim_t index);
 
             private :
-            void max_line(,dim_t max);
-        } 
+            void max_line(dim_t max);
+        };
     }
 }

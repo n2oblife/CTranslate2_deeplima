@@ -114,9 +114,10 @@ namespace ctranslate2 {
       Shape out_shape({a_shape[0], a_shape[1], b_shape[2]});
       out.resize(std::move(out_shape));
       StorageView res(a.dtype(), a.device());
-      ops::MatMul mm();
+      ops::MatMul mm;
       for (int i=0; i<a_shape[0]; i++){
-        mm(, , res); // TODO compute the matmul
+        throw std::runtime_error("NOT IMPLEMENTED");
+        // mm(, , res); // TODO compute the matmul
         out;
         res.clear();
       }

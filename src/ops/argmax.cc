@@ -7,11 +7,11 @@ namespace ctranslate2
         /**
          * Returns the indices of the maximum value of all elements in the input
         */
-        void Argmax::operator()(const StorageView& input, dim_t index) const 
+        void Argmax::operator()(const StorageView& input, dim_t index)
         {
             if (input.shape().size() != 2){}
-            dim_t current_max
-            for (int i=0; i < mainputt.shape(); i++){
+            dim_t current_max;
+            for (size_t i=0; i < input.shape().size(); i++){
                 
             }
         }
