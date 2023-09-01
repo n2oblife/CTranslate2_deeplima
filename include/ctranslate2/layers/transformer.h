@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ctranslate2/layers/attention.h"
-#include "ctranslate2/layers/transformer.h"
 #include "ctranslate2/layers/common.h"
 #include "ctranslate2/layers/decoder.h"
 #include "ctranslate2/layers/encoder.h"

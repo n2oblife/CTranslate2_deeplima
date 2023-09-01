@@ -391,7 +391,7 @@ def set_trankit_decoder(spec, variables, task):
         set_posdep(spec.decoder, variables, 'decoder._tagger')
     else :
         try : 
-            auto_set(spec.decoder, variables, 'decoder._tagger')
+            auto_set(spec.decoder, variables, 'decoder')
         except:
             raise NotImplementedError("Decoders are not implemented yet")
 

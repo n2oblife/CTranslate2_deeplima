@@ -13,3 +13,5 @@ python/ct2_env/
 .cache
 docs/build/
 docs/python/
+
+*__pycache__/

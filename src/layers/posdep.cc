@@ -80,7 +80,7 @@ namespace ctranslate2 {
             g(h.dtype(), h.device());
             StorageView* h_ones(h.dtype(), h.device()).fill(1); // TODO write this with unique/shared ptr
             std::vector<StorageView> to_concat{h, h_ones};
-            int ax = h.shape().size() - 1;
+            size_t ax = h.shape().size() - 1;
             ops::Concat(ax)(to_concat,g);
         }
 
